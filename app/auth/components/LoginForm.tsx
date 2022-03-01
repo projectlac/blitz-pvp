@@ -12,40 +12,48 @@ export const LoginForm = (props: LoginFormProps) => {
   const [loginMutation] = useMutation(login)
 
   return (
-    <div>
-      <h1>Login</h1>
+    <div className="Middle">
+      <div className="LoginForm">
+        <h1>Login</h1>
 
-      <Form
-        submitText="Login"
-        schema={Login}
-        initialValues={{ email: "", password: "" }}
-        onSubmit={async (values) => {
-          try {
-            const user = await loginMutation(values)
-            props.onSuccess?.(user)
-          } catch (error: any) {
-            if (error instanceof AuthenticationError) {
-              return { [FORM_ERROR]: "Sorry, those credentials are invalid" }
-            } else {
-              return {
-                [FORM_ERROR]:
-                  "Sorry, we had an unexpected error. Please try again. - " + error.toString(),
+        <Form
+          submitText="Login"
+          schema={Login}
+          initialValues={{ email: "", password: "" }}
+          onSubmit={async (values) => {
+            try {
+              const user = await loginMutation(values)
+              props.onSuccess?.(user)
+            } catch (error: any) {
+              if (error instanceof AuthenticationError) {
+                return { [FORM_ERROR]: "Sorry, those credentials are invalid" }
+              } else {
+                return {
+                  [FORM_ERROR]:
+                    "Sorry, we had an unexpected error. Please try again. - " + error.toString(),
+                }
               }
             }
-          }
-        }}
-      >
-        <LabeledTextField name="email" label="Email" placeholder="Email" />
-        <LabeledTextField name="password" label="Password" placeholder="Password" type="password" />
-        <div>
-          <Link href={Routes.ForgotPasswordPage()}>
-            <a>Forgot your password?</a>
-          </Link>
+          }}
+        >
+          <LabeledTextField name="email" label="Email" placeholder="Email" />
+          <LabeledTextField
+            name="password"
+            label="Password"
+            placeholder="Password"
+            type="password"
+          />
+        </Form>
+        <div className="LoginForm-sub">
+          <div>
+            <Link href={Routes.ForgotPasswordPage()}>
+              <a>Forgot your password?</a>
+            </Link>
+          </div>
+          <div>
+            Or <Link href={Routes.SignupPage()}>Sign Up</Link>
+          </div>
         </div>
-      </Form>
-
-      <div style={{ marginTop: "1rem" }}>
-        Or <Link href={Routes.SignupPage()}>Sign Up</Link>
       </div>
     </div>
   )

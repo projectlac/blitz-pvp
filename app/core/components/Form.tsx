@@ -2,6 +2,7 @@ import { ReactNode, PropsWithoutRef } from "react"
 import { Form as FinalForm, FormProps as FinalFormProps } from "react-final-form"
 import { z } from "zod"
 import { validateZodSchema } from "blitz"
+import { Button } from "@chakra-ui/react"
 export { FORM_ERROR } from "final-form"
 
 export interface FormProps<S extends z.ZodType<any, any>>
@@ -40,9 +41,12 @@ export function Form<S extends z.ZodType<any, any>>({
           )}
 
           {submitText && (
-            <button type="submit" disabled={submitting}>
+            <Button colorScheme="teal" variant="solid" type="submit" disabled={submitting}>
               {submitText}
-            </button>
+            </Button>
+            // <button type="submit" disabled={submitting}>
+            //   {submitText} fafa
+            // </button>
           )}
 
           <style global jsx>{`
