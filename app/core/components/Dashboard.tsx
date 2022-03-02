@@ -1,41 +1,70 @@
 import { Suspense, useEffect, useState } from "react"
-import { BlitzPage } from "blitz"
+import { BlitzPage, usePaginatedQuery, useQuery, useRouter } from "blitz"
 import Layout from "app/core/layouts/Layout"
 
-import { Table, Thead, Tbody, Tfoot, Input, Icon, Tr, Th, Td, TableCaption } from "@chakra-ui/react"
+import {
+  Table,
+  Thead,
+  Tbody,
+  Tfoot,
+  Input,
+  Icon,
+  Tr,
+  Th,
+  Td,
+  TableCaption,
+  useDisclosure,
+  Flex,
+  Box,
+  Spacer,
+} from "@chakra-ui/react"
 import { MdEdit, MdDelete } from "react-icons/md"
+import DialogAdd from "../layouts/DialogAdd"
+import getShikis from "app/shikis/queries/getShikis"
+import getShiki from "app/shikis/queries/getShiki"
+import DialogEdit from "../layouts/DialogEdit"
+
 /*
  * This file is just for a pleasant getting started page for your new app.
  * You can delete everything in here and start from scratch if you like.
  */
-
+interface Shikigami {
+  id: number
+  name: string
+  image: string
+}
 const UserInfo = () => {
   // const currentUser = useCurrentUser()
+  const router = useRouter()
+  const ITEMS_PER_PAGE = 10
+  const page = Number(router.query.page) || 0
+  const { isOpen, onOpen, onClose } = useDisclosure()
   const [search, setSearch] = useState("")
-  const [data, setData] = useState([
-    {
-      id: 1,
-      name: "Khong co anh",
-      image: "khong co luon",
-    },
-    {
-      id: 2,
-      name: "Khong co em ",
-      image: "khong co luon",
-    },
-    {
-      id: 3,
-      name: "Khong co chung ta",
-      image: "khong co luon",
-    },
-  ])
+  const [templateId, setTemplateId] = useState<number>(1)
+  const [openEdit, setOpenEdit] = useState<boolean>(false)
+
+  const [{ shikis, hasMore }] = usePaginatedQuery(getShikis, {
+    orderBy: { id: "asc" },
+    skip: ITEMS_PER_PAGE * page,
+    take: ITEMS_PER_PAGE,
+  })
+
   const handleSearchInput = () => {
-    const dataAfterSearch = data.filter((d) => d.name.toLowerCase().includes(search))
+    const dataAfterSearch = shikis.filter((d) => d.name.toLowerCase().includes(search))
     return dataAfterSearch
   }
 
   const handleInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearch(e.target.value)
+  }
+
+  const handleClickEdit = (id: number) => {
+    setTemplateId(id)
+    setOpenEdit(true)
+  }
+
+  const resetDialog = () => {
+    setOpenEdit(false)
   }
   return (
     <>
@@ -45,6 +74,13 @@ const UserInfo = () => {
         onChange={handleInput}
         value={search}
       />
+      <Flex>
+        <Spacer />
+        <Box>
+          <DialogAdd isOpen={isOpen} onOpen={onOpen} onClose={onClose} />
+        </Box>
+      </Flex>
+
       <Table variant="simple">
         <Thead>
           <Tr>
@@ -54,19 +90,26 @@ const UserInfo = () => {
           </Tr>
         </Thead>
         <Tbody>
-          {data &&
+          {shikis &&
             handleSearchInput().map((d, index) => (
               <Tr key={index}>
-                <Td>{index}</Td>
+                <Td>{index + 1}</Td>
                 <Td>{d.name}</Td>
                 <Td>
-                  <Icon as={MdEdit} />
+                  <Icon
+                    as={MdEdit}
+                    onClick={() => {
+                      handleClickEdit(d.id)
+                    }}
+                  />
                   <Icon as={MdDelete} />
                 </Td>
               </Tr>
             ))}
         </Tbody>
       </Table>
+
+      <DialogEdit openEdit={openEdit} id={templateId} resetDialog={resetDialog} />
     </>
   )
 }
